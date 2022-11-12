@@ -9,6 +9,9 @@
 # echo "export MAIN_FLAG='true'" >> /etc/profile
 # source /etc/profile
 
+NODE_IP='192.168.33.80'
+MAIN_FLAG='true'
+
 if [ "$MAIN_FLAG" = "" ]
 then
   echo "初始化环境变量MAIN_FLAG未设置"
@@ -55,7 +58,7 @@ mkdir -p /etc/docker
 tee /etc/docker/daemon.json <<-'EOF'
 {
   "exec-opts": ["native.cgroupdriver=systemd"],
-  "registry-mirrors": ["https://hub-mirror.c.163.com","https://mirror.baidubce.com","https://docker.mirrors.ustc.edu.cn/"]
+  "registry-mirrors": ["https://hub-mirror.c.163.com"]
 }
 EOF
 systemctl daemon-reload
@@ -97,6 +100,6 @@ then
   sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
   sudo chown $(id -u):$(id -g) $HOME/.kube/config  
   # 安装flannel
-  kubectl create -f https://raw.githubusercontent.com/flannel-io/flannel/v0.20.1/Documentation/kube-flannel.yml
+  kubectl create -f https://cdn-github.dunhanson.site/kubernetes/flannel-v0.20.1.yml
 fi
 echo "finish."
