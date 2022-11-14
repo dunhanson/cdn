@@ -9,9 +9,6 @@
 # echo "export MAIN_FLAG='true'" >> /etc/profile
 # source /etc/profile
 
-NODE_IP='192.168.33.80'
-MAIN_FLAG='true'
-
 if [ "$MAIN_FLAG" = "" ]
 then
   echo "初始化环境变量MAIN_FLAG未设置"
@@ -100,6 +97,6 @@ then
   sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
   sudo chown $(id -u):$(id -g) $HOME/.kube/config  
   # 安装flannel
-  kubectl create -f https://cdn-github.dunhanson.site/kubernetes/flannel-v0.20.1.yml
+  kubectl apply -f https://cdn-github.dunhanson.site/kubernetes/flannel-v0.20.1.yml
 fi
 echo "finish."
