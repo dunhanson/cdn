@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修为模拟器 - 微信小程序原型</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 10px;
+        }
+        
+        .container {
+            max-width: 375px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .realm-status {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .realm-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .realm-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .realm-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .realm-item label {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+        
+        .realm-select {
+            background: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #333;
+            width: 100%;
+        }
+        
+        .progress-input {
+            background: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #333;
+            width: 60px;
+            text-align: center;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title::before {
+            content: "✨";
+            margin-right: 8px;
+            font-size: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .checkbox-item:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 6px;
+        }
+        
+        .star-rating {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .star {
+            font-size: 20px;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s;
+            user-select: none;
+            display: inline-block;
+            margin-right: 2px;
+        }
+        
+        .star.active {
+            color: #ffd700;
+        }
+        
+        .star:hover {
+            transform: scale(1.1);
+        }
+        
+        .star-checkbox {
+            font-size: 20px;
+            color: #ddd;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            display: inline-block;
+            margin-right: 2px;
+            padding: 2px;
+        }
+        
+        .star-checkbox.active {
+            color: #ffd700;
+        }
+        
+        .star-checkbox:hover {
+            transform: scale(1.1);
+        }
+        
+        .pill-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: nowrap;
+        }
+        
+        .pill {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .pill.purple { background: linear-gradient(45deg, #a855f7, #ec4899); }
+        .pill.blue { background: linear-gradient(45deg, #3b82f6, #06b6d4); }
+        .pill.red { background: linear-gradient(45deg, #ef4444, #f97316); }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .result-section {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            margin: 20px -20px -20px -20px;
+            padding: 25px 20px;
+            text-align: center;
+        }
+        
+        .result-item {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        
+        .result-highlight {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd700;
+            margin: 15px 0;
+        }
+        
+        .tips {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #856404;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .input-small {
+            width: 70px;
+            padding: 8px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .unit-text {
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>🏔️ 修为模拟器</h1>
+            <div class="realm-status">
+                <div class="realm-row">
+                    <div class="realm-item">
+                        <label>当前境界</label>
+                        <select class="realm-select" id="currentRealmBase">
+                            <option value="化神">化神</option>
+                            <option value="返虚">返虚</option>
+                            <option value="合体">合体</option>
+                            <option value="大乘">大乘</option>
+                            <option value="渡劫">渡劫</option>
+                            <option value="真仙">真仙</option>
+                            <option value="金仙">金仙</option>
+                            <option value="太乙">太乙</option>
+                        </select>
+                    </div>
+                    <div class="realm-item">
+                        <label>阶段</label>
+                        <select class="realm-select" id="currentRealmStage">
+                            <option value="前期">前期</option>
+                            <option value="中期">中期</option>
+                            <option value="后期">后期</option>
+                        </select>
+                    </div>
+                    <div class="realm-item">
+                        <label>当前进度</label>
+                        <input type="number" class="progress-input" id="currentProgress" value="40" min="0" max="100">%
+                    </div>
+                </div>
+                <div class="realm-row">
+                    <div class="realm-item">
+                        <label>目标境界</label>
+                        <select class="realm-select" id="targetRealmBase">
+                            <option value="化神">化神</option>
+                            <option value="返虚">返虚</option>
+                            <option value="合体">合体</option>
+                            <option value="大乘">大乘</option>
+                            <option value="渡劫">渡劫</option>
+                            <option value="真仙">真仙</option>
+                            <option value="金仙">金仙</option>
+                            <option value="太乙" selected>太乙</option>
+                        </select>
+                    </div>
+                    <div class="realm-item">
+                        <label>阶段</label>
+                        <select class="realm-select" id="targetRealmStage">
+                            <option value="前期">前期</option>
+                            <option value="中期" selected>中期</option>
+                            <option value="后期">后期</option>
+                        </select>
+                    </div>
+                    <div class="realm-item">
+                        <label>目标进度</label>
+                        <input type="number" class="progress-input" id="targetProgress" value="75" min="0" max="100">%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content">
+            <!-- 洞府灵气 -->
+            <div class="section">
+                <div class="section-title">洞府灵气</div>
+                <div class="form-group">
+                    <label>基础灵气 (每周天)</label>
+                    <input type="number" class="form-control" placeholder="请输入基础灵气值">
+                </div>
+                
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="naling" checked>
+                        <label for="naling">纳灵印</label>
+                    </div>
+                </div>
+                
+                <div class="star-rating" id="nalingStars">
+                    <span class="star-checkbox" data-star="1">☆</span>
+                    <span class="star-checkbox" data-star="2">☆</span>
+                    <span class="star-checkbox" data-star="3">☆</span>
+                    <span class="star-checkbox" data-star="4">☆</span>
+                    <span class="star-checkbox" data-star="5">☆</span>
+                </div>
+                <div style="margin-top: 5px; font-size: 12px; color: #666;">
+                    点击星星选择星级 (当前星级: <span id="selectedStars">0</span>星)
+                </div>
+                
+                <div class="input-group" style="margin-top: 10px;">
+                    <label>纳灵石继承修炼速度:</label>
+                    <input type="number" class="input-small" value="15">%
+                </div>
+                <div class="input-group">
+                    <label>纳灵石灵气吸收提升:</label>
+                    <input type="number" class="input-small" value="20">%
+                </div>
+                <div class="input-group">
+                    <label>锻灵效果提升:</label>
+                    <input type="number" class="input-small" value="10">%
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h4 style="margin-bottom: 15px; color: #333; font-size: 16px;">辅修方向</h4>
+                    
+                    <!-- 合道炉 -->
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="hedao" checked>
+                            <label for="hedao">合道炉</label>
+                        </div>
+                    </div>
+                    
+                    <div class="star-rating" id="hedaoStars" style="margin-top: 10px;">
+                        <span class="star-checkbox" data-star="1">☆</span>
+                        <span class="star-checkbox" data-star="2">☆</span>
+                        <span class="star-checkbox" data-star="3">☆</span>
+                        <span class="star-checkbox" data-star="4">☆</span>
+                        <span class="star-checkbox" data-star="5">☆</span>
+                    </div>
+                    <div style="margin-top: 5px; font-size: 12px; color: #666;">
+                        合道炉星级 (当前星级: <span id="hedaoSelectedStars">0</span>星)
+                    </div>
+                    
+                    <div class="input-group" style="margin-top: 10px;">
+                        <label>辅修独立修炼速度增加:</label>
+                        <input type="number" class="input-small" value="25">%
+                    </div>
+                    <div class="input-group">
+                        <label>辅修独立修炼效果放大:</label>
+                        <input type="number" class="input-small" value="30">%
+                    </div>
+                    <div class="input-group">
+                        <label>锻灵效果提升:</label>
+                        <input type="number" class="input-small" value="15">%
+                    </div>
+                    
+                    <!-- 逆尘珠 -->
+                    <div class="checkbox-group" style="margin-top: 20px;">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="nichu">
+                            <label for="nichu">逆尘珠</label>
+                        </div>
+                    </div>
+                    
+                    <div class="star-rating" id="nichuStars" style="margin-top: 10px;">
+                        <span class="star-checkbox" data-star="1">☆</span>
+                        <span class="star-checkbox" data-star="2">☆</span>
+                        <span class="star-checkbox" data-star="3">☆</span>
+                        <span class="star-checkbox" data-star="4">☆</span>
+                        <span class="star-checkbox" data-star="5">☆</span>
+                    </div>
+                    <div style="margin-top: 5px; font-size: 12px; color: #666;">
+                        逆尘珠星级 (当前星级: <span id="nichuSelectedStars">0</span>星)
+                    </div>
+                    
+                    <div class="checkbox-group" style="margin-top: 10px;">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="nichuSkin">
+                            <label for="nichuSkin">拥有皮肤</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 丹药 -->
+            <div class="section">
+                <div class="section-title">丹药</div>
+                <div class="pill-input">
+                    <span class="pill">金色丹药</span>
+                    <input type="number" class="input-small" placeholder="修为">
+                    <span class="unit-text">万</span>
+                    <input type="number" class="input-small" placeholder="数量">
+                    <span class="unit-text">颗</span>
+                </div>
+                <div class="pill-input" style="margin-top: 10px;">
+                    <span class="pill purple">紫色丹药</span>
+                    <input type="number" class="input-small" placeholder="修为">
+                    <span class="unit-text">万</span>
+                    <input type="number" class="input-small" placeholder="数量">
+                    <span class="unit-text">颗</span>
+                </div>
+                <div class="pill-input" style="margin-top: 10px;">
+                    <span class="pill blue">蓝色丹药</span>
+                    <input type="number" class="input-small" placeholder="修为">
+                    <span class="unit-text">万</span>
+                    <input type="number" class="input-small" placeholder="数量">
+                    <span class="unit-text">颗</span>
+                </div>
+                <div class="pill-input" style="margin-top: 10px;">
+                    <span class="pill red">红色丹药</span>
+                    <input type="number" class="input-small" placeholder="修为">
+                    <span class="unit-text">万</span>
+                </div>
+                
+                <div class="checkbox-group" style="margin-top: 15px;">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="xinghai">
+                        <label for="xinghai">星海瓶</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="shuangxing">
+                        <label for="shuangxing">双星镜</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="shanhe">
+                        <label for="shanhe">山河令</label>
+                    </div>
+                </div>
+                
+                <div class="tips">
+                    💡 山河令通过红图获取红色丹药以作用于修为
+                </div>
+            </div>
+
+            <!-- 吐纳修炼 -->
+            <div class="section">
+                <div class="section-title">吐纳修炼</div>
+                <div class="input-group">
+                    <label>基础修为:</label>
+                    <input type="number" class="input-small" placeholder="数值">万/次
+                </div>
+                <div class="input-group" style="margin-top: 10px;">
+                    <label>吐纳次数:</label>
+                    <input type="number" class="input-small" value="27" max="27">次
+                </div>
+                
+                <div class="tips">
+                    ⚡ 目前太乙境界吐纳次数上限为27次
+                </div>
+                
+                <div class="checkbox-group" style="margin-top: 15px;">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="tunajue">
+                        <label for="tunajue">吐纳珏</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 福泽 -->
+            <div class="section">
+                <div class="section-title">福泽</div>
+                <div class="form-group">
+                    <label>福泽境界</label>
+                    <select class="form-control">
+                        <option value="化神">化神</option>
+                        <option value="返虚">返虚</option>
+                        <option value="合体">合体</option>
+                        <option value="大乘">大乘</option>
+                        <option value="渡劫">渡劫</option>
+                        <option value="真仙">真仙</option>
+                        <option value="金仙">金仙</option>
+                        <option value="太乙" selected>太乙</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>福泽丹药数量:</label>
+                    <input type="number" class="input-small" placeholder="数量">
+                    <select class="form-control" style="width: auto; margin-left: 10px;">
+                        <option>50%</option>
+                        <option>100%</option>
+                        <option>150%</option>
+                        <option>200%</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 万妖果 -->
+            <div class="section">
+                <div class="section-title">万妖果</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="wanyao-calc">
+                        <label for="wanyao-calc">是否计算此项</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>万妖果境界</label>
+                    <select class="form-control">
+                        <option>炼气期</option>
+                        <option>筑基期</option>
+                        <option>金丹期</option>
+                        <option>元婴期</option>
+                        <option>化神期</option>
+                    </select>
+                </div>
+                
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="wanyao-buy">
+                        <label for="wanyao-buy">购买万妖果(30元礼包)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="wanyao-token">
+                        <label for="wanyao-token">使用万妖宝令</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 计算按钮 -->
+            <button class="calculate-btn" onclick="calculate()">
+                🧮 开始计算修炼时间
+            </button>
+
+            <!-- 结果显示 -->
+            <div class="result-section">
+                <h3>📊 计算结果</h3>
+                <div class="result-item">距离目标境界修为差值：<span id="diff">1250</span>万</div>
+                <div class="result-item">每日修为获取量：<span id="daily">45</span>万</div>
+                <div class="result-highlight">
+                    预计到达目标境界时间：<span id="days">27.78</span>天
+                </div>
+                <div class="tips" style="background: rgba(255,255,255,0.2); border: none; color: #fff;">
+                    📝 以下计算取平均值，因此实际时间与计算值有一定波动属正常情况，结果仅供参考。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 修为数据表格（万为单位）
+        const realmData = {
+            '化神前期': 1232.63,
+            '化神中期': 2615.54,
+            '化神后期': 6179.22,
+            '返虚前期': 6801.47,
+            '返虚中期': 14209.39,
+            '返虚后期': 30771.50,
+            '合体前期': 19480.62,
+            '合体中期': 27553.51,
+            '合体后期': 32896.28,
+            '大乘前期': 48672.26,
+            '大乘中期': 73230.33,
+            '大乘后期': 98073.40,
+            '渡劫前期': 115919.19,
+            '渡劫中期': 149936.29,
+            '渡劫后期': 191684.17,
+            '真仙前期': 300380.80,
+            '真仙中期': 399639.35,
+            '真仙后期': 550828.32,
+            '金仙前期': 858983.92,
+            '金仙中期': 1007080.62,
+            '金仙后期': 1336666.18,
+            '太乙前期': 1986020.45,
+            '太乙中期': 2581826.58,
+            '太乙后期': 3485465.89
+        };
+
+        // 境界顺序数组
+        const realmOrder = [
+            '化神前期', '化神中期', '化神后期',
+            '返虚前期', '返虚中期', '返虚后期', 
+            '合体前期', '合体中期', '合体后期',
+            '大乘前期', '大乘中期', '大乘后期',
+            '渡劫前期', '渡劫中期', '渡劫后期',
+            '真仙前期', '真仙中期', '真仙后期',
+            '金仙前期', '金仙中期', '金仙后期',
+            '太乙前期', '太乙中期', '太乙后期'
+        ];
+
+        // 星级复选框交互
+        function initStarRating() {
+            console.log('初始化星级复选框功能'); // 调试用
+            
+            // 为每个星级评分容器单独处理
+            document.querySelectorAll('.star-rating').forEach(container => {
+                const starCheckboxes = container.querySelectorAll('.star-checkbox');
+                const containerId = container.id;
+                
+                starCheckboxes.forEach((star, index) => {
+                    star.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        console.log(`${containerId}: 点击了第${index + 1}颗星`); // 调试用
+                        
+                        // 获取点击的星星在当前容器中的位置
+                        const allStars = container.querySelectorAll('.star-checkbox');
+                        
+                        // 确定目标星级
+                        let targetRating;
+                        if (star.classList.contains('active')) {
+                            // 如果是最后一颗选中的星星，点击取消选择
+                            const currentSelectedCount = container.querySelectorAll('.star-checkbox.active').length;
+                            if (index === currentSelectedCount - 1) {
+                                targetRating = index; // 取消当前这颗星
+                            } else {
+                                targetRating = index + 1; // 保持当前星级
+                            }
+                        } else {
+                            targetRating = index + 1; // 选中到点击的星星
+                        }
+                        
+                        // 更新所有星星的状态
+                        allStars.forEach((s, i) => {
+                            if (i < targetRating) {
+                                s.classList.add('active');
+                                s.textContent = '⭐'; // 实心星星
+                            } else {
+                                s.classList.remove('active');
+                                s.textContent = '☆'; // 空心星星
+                            }
+                        });
+                        
+                        // 更新对应的显示数量
+                        let displayId;
+                        if (containerId === 'nalingStars') {
+                            displayId = 'selectedStars';
+                        } else if (containerId === 'hedaoStars') {
+                            displayId = 'hedaoSelectedStars';
+                        } else if (containerId === 'nichuStars') {
+                            displayId = 'nichuSelectedStars';
+                        }
+                        
+                        const selectedDisplay = document.getElementById(displayId);
+                        if (selectedDisplay) {
+                            selectedDisplay.textContent = targetRating;
+                        }
+                        
+                        console.log(`${containerId}: 已选中星星数量:`, targetRating); // 调试用
+                    });
+                });
+            });
+        }
+
+        // 计算修为差值
+        function calculateRealmDifference() {
+            // 组合境界和程度
+            const currentRealmBase = document.getElementById('currentRealmBase').value;
+            const currentRealmStage = document.getElementById('currentRealmStage').value;
+            const currentRealm = currentRealmBase + currentRealmStage;
+            
+            const targetRealmBase = document.getElementById('targetRealmBase').value;
+            const targetRealmStage = document.getElementById('targetRealmStage').value;
+            const targetRealm = targetRealmBase + targetRealmStage;
+            
+            const currentProgress = parseFloat(document.getElementById('currentProgress').value) / 100;
+            const targetProgress = parseFloat(document.getElementById('targetProgress').value) / 100;
+
+            const currentIndex = realmOrder.indexOf(currentRealm);
+            const targetIndex = realmOrder.indexOf(targetRealm);
+
+            if (currentIndex === -1 || targetIndex === -1) {
+                return 0;
+            }
+
+            let totalDifference = 0;
+
+            if (currentIndex === targetIndex) {
+                // 同一境界内
+                const realmExp = realmData[currentRealm];
+                totalDifference = realmExp * (targetProgress - currentProgress);
+            } else if (currentIndex < targetIndex) {
+                // 跨境界计算
+                // 当前境界剩余修为
+                const currentRealmExp = realmData[currentRealm];
+                totalDifference += currentRealmExp * (1 - currentProgress);
+
+                // 中间完整境界修为
+                for (let i = currentIndex + 1; i < targetIndex; i++) {
+                    totalDifference += realmData[realmOrder[i]];
+                }
+
+                // 目标境界需要修为
+                const targetRealmExp = realmData[targetRealm];
+                totalDifference += targetRealmExp * targetProgress;
+            } else {
+                // 目标境界低于当前境界
+                totalDifference = 0;
+            }
+
+            return Math.max(0, totalDifference);
+        }
+
+        // 计算功能
+        function calculate() {
+            const realmDiff = calculateRealmDifference();
+            
+            // 模拟每日修为获取量（这里可以根据实际配置计算）
+            const daily = Math.floor(Math.random() * 100) + 20;
+            const days = realmDiff > 0 ? (realmDiff / daily).toFixed(2) : 0;
+            
+            document.getElementById('diff').textContent = realmDiff.toFixed(2);
+            document.getElementById('daily').textContent = daily;
+            document.getElementById('days').textContent = days;
+            
+            // 添加计算动画
+            const btn = event.target;
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                btn.style.transform = 'scale(1)';
+            }, 150);
+        }
+
+        // 复选框样式交互
+        document.querySelectorAll('.checkbox-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                checkbox.checked = !checkbox.checked;
+                item.style.background = checkbox.checked ? '#f0f2ff' : 'white';
+                item.style.borderColor = checkbox.checked ? '#667eea' : '#e9ecef';
+            });
+        });
+
+        // 设置默认值（化神前期40% -> 太乙中期75%）
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置当前境界为化神前期
+            document.getElementById('currentRealmBase').value = '化神';
+            document.getElementById('currentRealmStage').value = '前期';
+            
+            // 设置目标境界为太乙中期
+            document.getElementById('targetRealmBase').value = '太乙';
+            document.getElementById('targetRealmStage').value = '中期';
+            
+            // 初始化星级评分功能
+            initStarRating();
+        });
+    </script>
+</body>
+</html>
